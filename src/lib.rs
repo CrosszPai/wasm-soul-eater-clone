@@ -62,6 +62,8 @@ pub fn main_js() -> Result<IntervalHandle, JsValue> {
 
     let window = web_sys::window().unwrap();
     context.set_fill_style(&JsValue::from_str("black"));
+
+    // test inti
     let game_world = Rc::new(RefCell::new(World::default()));
     {
         let mut w = game_world.borrow_mut();
@@ -94,6 +96,7 @@ pub fn main_js() -> Result<IntervalHandle, JsValue> {
             .add_system(game_system::render::render_update_system())
             .build(),
     ));
+    // keydown handler
     {
         let sched = game_schedule.clone();
         let w = Rc::clone(&game_world);
@@ -109,6 +112,8 @@ pub fn main_js() -> Result<IntervalHandle, JsValue> {
         window.set_onkeydown(Some(cb2.as_ref().unchecked_ref()));
         cb2.forget();
     }
+
+    // keyup handler
     {
         let sched = game_schedule.clone();
         let w = Rc::clone(&game_world);
@@ -144,6 +149,7 @@ pub fn main_js() -> Result<IntervalHandle, JsValue> {
                 .unwrap();
         }
     }) as Box<dyn FnMut()>);
+    // game render loop
     let interval_id = window.set_interval_with_callback_and_timeout_and_arguments_0(
         cb.as_ref().unchecked_ref(),
         1000 / 60,
