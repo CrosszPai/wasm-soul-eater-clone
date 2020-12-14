@@ -36,6 +36,7 @@ legion = { version = "0.3.1", default-features = false, features = [
     "crossbeam-events",
     "codegen"
 ] }
+vector2d = "2.2.0"
 
 # The `web-sys` crate allows you to interact with the various browser APIs,
 # like the DOM.

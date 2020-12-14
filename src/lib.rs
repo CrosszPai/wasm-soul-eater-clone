@@ -2,7 +2,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::console;
 mod components;
-use components::{controller::Controller, position::Position, velocity::Velocity};
+use components::{controller::Controller, transform::Tranform};
 use legion::*;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -68,23 +68,19 @@ pub fn main_js() -> Result<IntervalHandle, JsValue> {
     {
         let mut w = game_world.borrow_mut();
         (*w).push((
-            Position::new(32f32, 32f32),
-            Velocity {
-                dx: 10f32,
-                dy: 10f32,
+            Tranform {
+                velocity: vector2d::Vector2D::new(10., 10.),
+                position: vector2d::Vector2D::new(0., 0.),
             },
             Controller {
                 pressed: false,
                 key: "",
             },
         ));
-        (*w).push((
-            Position::new(100f32, 32f32),
-            Velocity {
-                dx: 300f32,
-                dy: 20f32,
-            },
-        ));
+        (*w).push((Tranform {
+            velocity: vector2d::Vector2D::new(20., 300.),
+            position: vector2d::Vector2D::new(0., 0.),
+        },));
     }
     let game_schedule = Rc::new(RefCell::new(
         Schedule::builder()
@@ -138,13 +134,13 @@ pub fn main_js() -> Result<IntervalHandle, JsValue> {
         context
             .draw_image_with_html_image_element(&getResource("forest00"), 0., 0.)
             .unwrap();
-        let mut q = <&Position>::query();
-        for pos in q.iter(&(*w)) {
+        let mut q = <&Tranform>::query();
+        for t in q.iter(&(*w)) {
             context
                 .draw_image_with_html_image_element(
                     &getResource("bullet"),
-                    pos.x as f64,
-                    pos.y as f64,
+                    t.position.x as f64,
+                    t.position.y as f64,
                 )
                 .unwrap();
         }
