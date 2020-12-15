@@ -1,14 +1,21 @@
+use std::cell::RefCell;
+use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::console;
-mod components;
-use components::{controller::Controller, transform::Tranform};
+
 use legion::*;
-use std::cell::RefCell;
-use std::rc::Rc;
+
+mod components;
+use components::{
+    controller::Controller, static_graphic::StaticGraphic,
+    transform::Tranform,
+};
 
 mod game_system;
 use game_system::control::ControllerResource;
+
+mod utils;
 
 // When the `wee_alloc` feature is enabled, this uses `wee_alloc` as the global
 // allocator.
@@ -76,11 +83,15 @@ pub fn main_js() -> Result<IntervalHandle, JsValue> {
                 pressed: false,
                 key: "",
             },
+            StaticGraphic { name: "bullet" },
         ));
-        (*w).push((Tranform {
-            velocity: vector2d::Vector2D::new(20., 300.),
-            position: vector2d::Vector2D::new(0., 0.),
-        },));
+        (*w).push((
+            Tranform {
+                velocity: vector2d::Vector2D::new(20., 300.),
+                position: vector2d::Vector2D::new(0., 0.),
+            },
+            StaticGraphic { name: "bullet" },
+        ));
     }
     let game_schedule = Rc::new(RefCell::new(
         Schedule::builder()
@@ -130,20 +141,6 @@ pub fn main_js() -> Result<IntervalHandle, JsValue> {
         let mut r = Resources::default();
         let mut realsch = render_schedule.borrow_mut();
         (*realsch).execute(&mut w, &mut r);
-        context.clear_rect(0., 0., 1280., 720.);
-        context
-            .draw_image_with_html_image_element(&getResource("forest00"), 0., 0.)
-            .unwrap();
-        let mut q = <&Tranform>::query();
-        for t in q.iter(&(*w)) {
-            context
-                .draw_image_with_html_image_element(
-                    &getResource("bullet"),
-                    t.position.x as f64,
-                    t.position.y as f64,
-                )
-                .unwrap();
-        }
     }) as Box<dyn FnMut()>);
     // game render loop
     let interval_id = window.set_interval_with_callback_and_timeout_and_arguments_0(
